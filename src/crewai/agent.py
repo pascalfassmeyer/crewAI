@@ -294,8 +294,7 @@ class Agent(BaseModel):
                 else:
                     tools_list.append(tool)
         except ModuleNotFoundError:
-            for tool in tools:
-                tools_list.append(tool)
+            tools_list.extend(iter(tools))
         return tools_list
 
     @staticmethod

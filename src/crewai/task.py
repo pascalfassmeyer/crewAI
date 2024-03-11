@@ -123,19 +123,17 @@ class Task(BaseModel):
 
         tools = tools or self.tools
 
-        if self.async_execution:
-            self.thread = threading.Thread(
-                target=self._execute, args=(agent, self, context, tools)
-            )
-            self.thread.start()
-        else:
-            result = self._execute(
+        if not self.async_execution:
+            return self._execute(
                 task=self,
                 agent=agent,
                 context=context,
                 tools=tools,
             )
-            return result
+        self.thread = threading.Thread(
+            target=self._execute, args=(agent, self, context, tools)
+        )
+        self.thread.start()
 
     def _execute(self, agent, task, context, tools):
         result = agent.execute_task(
@@ -215,14 +213,14 @@ class Task(BaseModel):
 
         if self.output_file:
             content = (
-                exported_result if not self.output_pydantic else exported_result.json()
+                exported_result.json() if self.output_pydantic else exported_result
             )
             self._save_file(content)
 
         return exported_result
 
     def _is_gpt(self, llm) -> bool:
-        return isinstance(llm, ChatOpenAI) and llm.openai_api_base == None
+        return isinstance(llm, ChatOpenAI) and llm.openai_api_base is None
 
     def _save_file(self, result: Any) -> None:
         with open(self.output_file, "w") as file:

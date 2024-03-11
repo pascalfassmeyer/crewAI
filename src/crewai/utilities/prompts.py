@@ -41,5 +41,4 @@ class Prompts(BaseModel):
         """Constructs a prompt string from specified components."""
         prompt_parts = [self.i18n.slice(component) for component in components]
         prompt_parts.append(self.SCRATCHPAD_SLICE)
-        prompt = PromptTemplate.from_template("".join(prompt_parts))
-        return prompt
+        return PromptTemplate.from_template("".join(prompt_parts))

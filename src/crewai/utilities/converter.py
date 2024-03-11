@@ -62,14 +62,13 @@ class Converter(BaseModel):
         """Create an instructor."""
         from crewai.utilities import Instructor
 
-        inst = Instructor(
+        return Instructor(
             llm=self.llm,
             max_attemps=self.max_attemps,
             model=self.model,
             content=self.text,
             instructions=self.instructions,
         )
-        return inst
 
     def _create_chain(self):
         """Create a chain."""
@@ -84,4 +83,4 @@ class Converter(BaseModel):
         return new_prompt | self.llm | parser
 
     def _is_gpt(self, llm) -> bool:
-        return isinstance(llm, ChatOpenAI) and llm.openai_api_base == None
+        return isinstance(llm, ChatOpenAI) and llm.openai_api_base is None

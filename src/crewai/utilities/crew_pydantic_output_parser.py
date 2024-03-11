@@ -23,7 +23,7 @@ class CrewPydanticOutputParser(PydanticOutputParser):
         except ValidationError as e:
             name = self.pydantic_object.__name__
             msg = f"Failed to parse {name} from completion {json_object}. Got: {e}"
-            raise OutputParserException(msg, llm_output=json_object)
+            raise OutputParserException(msg, llm_output=json_object) from e
 
     def _transform_in_valid_json(self, text) -> str:
         text = text.replace("```", "").replace("json", "")
@@ -36,7 +36,7 @@ class CrewPydanticOutputParser(PydanticOutputParser):
                 json_obj = json.loads(match.group())
                 # Return the first successfully parsed JSON object
                 json_obj = json.dumps(json_obj)
-                return str(json_obj)
+                return json_obj
             except json.JSONDecodeError:
                 # If parsing fails, skip to the next match
                 continue

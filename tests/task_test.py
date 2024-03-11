@@ -382,8 +382,6 @@ def test_increment_delegations_for_hierarchical_process():
 
 @pytest.mark.vcr(filter_headers=["authorization"])
 def test_increment_delegations_for_sequential_process():
-    pass
-
     manager = Agent(
         role="Manager",
         goal="Coordinate scoring processes",

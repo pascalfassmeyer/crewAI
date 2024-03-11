@@ -18,10 +18,9 @@ class RPMController(BaseModel):
 
     @model_validator(mode="after")
     def reset_counter(self):
-        if self.max_rpm:
-            if not self._shutdown_flag:
-                self._lock = threading.Lock()
-                self._reset_request_count()
+        if self.max_rpm and not self._shutdown_flag:
+            self._lock = threading.Lock()
+            self._reset_request_count()
         return self
 
     def check_or_wait(self):
@@ -31,14 +30,14 @@ class RPMController(BaseModel):
         with self._lock:
             if self._current_rpm < self.max_rpm:
                 self._current_rpm += 1
-                return True
             else:
                 self.logger.log(
                     "info", "Max RPM reached, waiting for next minute to start."
                 )
                 self._wait_for_next_minute()
                 self._current_rpm = 1
-                return True
+
+            return True
 
     def stop_rpm_counter(self):
         if self._timer:

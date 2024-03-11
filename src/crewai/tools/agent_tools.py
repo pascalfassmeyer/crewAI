@@ -48,7 +48,7 @@ class AgentTools(BaseModel):
                 for available_agent in self.agents
                 if available_agent.role.strip().lower() == agent.strip().lower()
             ]
-        except:
+        except Exception:
             return self.i18n.errors("agent_tool_unexsiting_coworker").format(
                 coworkers="\n".join([f"- {agent.role}" for agent in self.agents])
             )

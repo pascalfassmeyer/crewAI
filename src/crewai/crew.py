@@ -177,8 +177,10 @@ class Crew(BaseModel):
         del task_config["agent"]
         return Task(**task_config, agent=task_agent)
 
-    def kickoff(self, inputs: Optional[Dict[str, Any]] = {}) -> str:
+    def kickoff(self, inputs: Optional[Dict[str, Any]] = None) -> str:
         """Starts the crew to work on its assigned tasks."""
+        if inputs is None:
+            inputs = {}
         self._execution_span = self._telemetry.crew_execution_span(self)
         self._interpolate_inputs(inputs)
 
@@ -205,11 +207,10 @@ class Crew(BaseModel):
                 f"The process '{self.process}' is not implemented yet."
             )
 
-        metrics = metrics + [
-            agent._token_process.get_summary() for agent in self.agents
-        ]
+        metrics += [agent._token_process.get_summary() for agent in self.agents]
         self.usage_metrics = {
-            key: sum([m[key] for m in metrics if m is not None]) for key in metrics[0]
+            key: sum(m[key] for m in metrics if m is not None)
+            for key in metrics[0]
         }
 
         return result
@@ -222,7 +223,7 @@ class Crew(BaseModel):
                 agents_for_delegation = [
                     agent for agent in self.agents if agent != task.agent
                 ]
-                if len(self.agents) > 1 and len(agents_for_delegation) > 0:
+                if len(self.agents) > 1 and agents_for_delegation:
                     task.tools += AgentTools(agents=agents_for_delegation).tools()
 
             role = task.agent.role if task.agent is not None else "None"

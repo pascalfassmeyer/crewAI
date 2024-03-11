@@ -132,7 +132,7 @@ class CrewAgentExecutor(AgentExecutor):
                     "In order to pass this error back to the agent and have it try "
                     "again, pass `handle_parsing_errors=True` to the AgentExecutor. "
                     f"This is the error: {str(e)}"
-                )
+                ) from e
             str(e)
             if isinstance(self.handle_parsing_errors, bool):
                 if e.send_to_llm:
@@ -145,7 +145,7 @@ class CrewAgentExecutor(AgentExecutor):
             elif callable(self.handle_parsing_errors):
                 observation = f"\n{self.handle_parsing_errors(e)}"
             else:
-                raise ValueError("Got unexpected type of `handle_parsing_errors`")
+                raise ValueError("Got unexpected type of `handle_parsing_errors`") from e
             output = AgentAction("_Exception", observation, "")
             if run_manager:
                 run_manager.on_agent_action(output, color="green")
@@ -192,14 +192,13 @@ class CrewAgentExecutor(AgentExecutor):
 
             if isinstance(tool_calling, ToolUsageErrorException):
                 observation = tool_calling.message
-            else:
-                if tool_calling.tool_name.lower().strip() in [
+            elif tool_calling.tool_name.lower().strip() in [
                     name.lower().strip() for name in name_to_tool_map
                 ]:
-                    observation = tool_usage.use(tool_calling, agent_action.log)
-                else:
-                    observation = self._i18n.errors("wrong_tool_name").format(
-                        tool=tool_calling.tool_name,
-                        tools=", ".join([tool.name for tool in self.tools]),
-                    )
+                observation = tool_usage.use(tool_calling, agent_action.log)
+            else:
+                observation = self._i18n.errors("wrong_tool_name").format(
+                    tool=tool_calling.tool_name,
+                    tools=", ".join([tool.name for tool in self.tools]),
+                )
             yield AgentStep(action=agent_action, observation=observation)

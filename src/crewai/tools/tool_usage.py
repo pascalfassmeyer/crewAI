@@ -59,12 +59,11 @@ class ToolUsage:
         self.function_calling_llm = function_calling_llm
 
         # Set the maximum parsing attempts for bigger models
-        if (isinstance(self.function_calling_llm, ChatOpenAI)) and (
-            self.function_calling_llm.openai_api_base == None
-        ):
-            if self.function_calling_llm.model_name in OPENAI_BIGGER_MODELS:
-                self._max_parsing_attempts = 2
-                self._remember_format_after_usages = 4
+        if (
+                    isinstance(self.function_calling_llm, ChatOpenAI)
+                ) and self.function_calling_llm.openai_api_base is None and self.function_calling_llm.model_name in OPENAI_BIGGER_MODELS:
+            self._max_parsing_attempts = 2
+            self._remember_format_after_usages = 4
 
     def parse(self, tool_string: str):
         """Parse the tool string and return the tool calling."""
@@ -176,7 +175,7 @@ class ToolUsage:
         return self.task.used_tools % self._remember_format_after_usages == 0
 
     def _remember_format(self, result: str) -> None:
-        result = str(result)
+        result = result
         result += "\n\n" + self._i18n.slice("tools").format(
             tools=self.tools_description, tool_names=self.tools_names
         )
@@ -224,7 +223,7 @@ class ToolUsage:
         return "\n--\n".join(descriptions)
 
     def _is_gpt(self, llm) -> bool:
-        return isinstance(llm, ChatOpenAI) and llm.openai_api_base == None
+        return isinstance(llm, ChatOpenAI) and llm.openai_api_base is None
 
     def _tool_calling(
         self, tool_string: str

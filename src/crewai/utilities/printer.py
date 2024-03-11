@@ -8,7 +8,7 @@ class Printer:
             print(content)
 
     def _print_yellow(self, content):
-        print("\033[93m {}\033[00m".format(content))
+        print(f"\033[93m {content}\033[00m")
 
     def _print_red(self, content):
-        print("\033[91m {}\033[00m".format(content))
+        print(f"\033[91m {content}\033[00m")

@@ -23,12 +23,12 @@ class I18N(BaseModel):
 
             with open(prompts_path, "r") as f:
                 self._translations = json.load(f)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             raise ValidationError(
                 f"Translation file for language '{self.language}' not found."
-            )
-        except json.JSONDecodeError:
-            raise ValidationError(f"Error decoding JSON from the prompts file.")
+            ) from e
+        except json.JSONDecodeError as e:
+            raise ValidationError("Error decoding JSON from the prompts file.") from e
 
         if not self._translations:
             self._translations = {}
